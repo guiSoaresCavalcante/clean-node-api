@@ -12,10 +12,17 @@
   "devDependencies": {
     "@types/node": "^20.12.7",
     "git-commit-msg-linter": "^5.0.7",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "typescript": "^5.4.5"
   },
   "dependencies": {
     "eslint-config-standard-with-typescript": "^43.0.1",
     "mkdirp": "^3.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
