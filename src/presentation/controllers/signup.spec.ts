@@ -103,6 +103,23 @@ describe('SignUp Controller', () => {
 })
 
 describe('SignUp Controller', () => {
+  test('Should return 400 if password confirmation fails', () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'invalid_password'
+      }
+    }
+    const HttpResponse = sut.handle(httpRequest)
+    expect(HttpResponse.statusCode).toBe(400)
+    expect(HttpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
+  })
+})
+
+describe('SignUp Controller', () => {
   test('Should return 400 if an invalid email is provided', () => {
     const { sut, emailValidatorStub } = makeSut() // o SignUpController não ira validar email, iremos injetar uma dependência
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false) // usando o jest para alterar o valor default do retorno
