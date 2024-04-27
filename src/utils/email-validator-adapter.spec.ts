@@ -1,4 +1,4 @@
-import { EmailValidatorAdapter } from './email-validator'
+import { EmailValidatorAdapter } from './email-validator-adapter'
 import validator from 'validator'
 
 // mockando a lib para os testes. Aqui não importa como é feita a implementação do metodo
