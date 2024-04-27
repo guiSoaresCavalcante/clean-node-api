@@ -16,18 +16,17 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub()
 }
 
-const makeEmailValidatorWithError = (): EmailValidator => {
-  class EmailValidatorStub implements EmailValidator {
-    isValid (email: string): boolean {
-      throw new Error()
-    }
-  }
-  return new EmailValidatorStub()
-}
-
+// const makeEmailValidatorWithError = (): EmailValidator => {
+//   class EmailValidatorStub implements EmailValidator {
+//     isValid (email: string): boolean {
+//       throw new Error()
+//     }
+//   }
+//   return new EmailValidatorStub()
+// }
 
 // usamos um factory method para facilitar a criação do sut
-const makeSuit = (): SutTypes => {
+const makeSut = (): SutTypes => {
   // injentando uma versão mockada de um validator no nosso controller
   const emailValidatorStub = makeEmailValidator()
   const sut = new SignUpController(emailValidatorStub)
@@ -41,7 +40,7 @@ const makeSuit = (): SutTypes => {
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no name is provided', () => {
-    const { sut } = makeSuit()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         email: 'any_email',
@@ -57,7 +56,7 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no email is provided', () => {
-    const { sut } = makeSuit()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -73,7 +72,7 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no password is provided', () => {
-    const { sut } = makeSuit()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -89,7 +88,7 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no password confirmation is provided', () => {
-    const { sut } = makeSuit()
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -105,7 +104,7 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should return 400 if an invalid email is provided', () => {
-    const { sut, emailValidatorStub } = makeSuit() // o SignUpController não ira validar email, iremos injetar uma dependência
+    const { sut, emailValidatorStub } = makeSut() // o SignUpController não ira validar email, iremos injetar uma dependência
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false) // usando o jest para alterar o valor default do retorno
     const httpRequest = {
       body: {
@@ -123,7 +122,7 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should call emailValidator with correct email', () => {
-    const { sut, emailValidatorStub } = makeSuit()
+    const { sut, emailValidatorStub } = makeSut()
     const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
     const httpRequest = {
       body: {
@@ -140,8 +139,10 @@ describe('SignUp Controller', () => {
 
 describe('SignUp Controller', () => {
   test('Should return 500 if EmailValidator throws', () => {
-    const emailValidatorStub = makeEmailValidatorWithError()
-    const sut = new SignUpController(emailValidatorStub)
+    const { sut, emailValidatorStub } = makeSut()
+    jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
 
     const httpRequest = {
       body: {
