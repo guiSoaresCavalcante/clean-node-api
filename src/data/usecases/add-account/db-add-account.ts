@@ -13,13 +13,7 @@ export class DbAddAccount implements AddAccount {
     const hashedPassword = await this.encrypter.encrypt(accountData.password)
 
     // Object.assign cria um novo objeto e substitui os valores do dicionario passado por parametro
-    await this.addAccountRepository.add(Object.assign({}, accountData, { password: hashedPassword }))
-    const fakeAccount = {
-      id: 'valid_id',
-      name: 'valid_name',
-      email: 'valid_email@email.com',
-      password: 'valid_password'
-    }
-    return await new Promise(resolve => { resolve(fakeAccount) })
+    const account = await this.addAccountRepository.add(Object.assign({}, accountData, { password: hashedPassword }))
+    return account
   }
 }
