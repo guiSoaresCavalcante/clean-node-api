@@ -11,7 +11,7 @@ export class BcryptAdapter implements Encrypter {
   // o metodo faz parte do protocolo. Como o salt é uma propriedade especifica
   // do Bcrypt, o colocamos no construtor
   async encrypt (value: string): Promise<string> {
-    await bcrypt.hash(value, this.salt)
-    return ''
+    const hash = await bcrypt.hash(value, this.salt)
+    return hash
   }
 }
