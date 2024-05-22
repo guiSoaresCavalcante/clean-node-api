@@ -9,10 +9,16 @@ describe('Account Mongo Repository', () => {
     await MongoHelper.connect(global.__MONGO_URI__)
   })
 
+  // depois dos testes desconectamos do banco
   afterAll(async () => {
     await MongoHelper.disconnect()
   })
 
+  // em um teste de integracao com o db, e boa pratica limparmos o banco apos cada teste
+  beforeEach(async () => {
+    const accountCollection = MongoHelper.getCollection('accounts')
+    await accountCollection.deleteMany({})
+  })
   const makeSut = (): AccountMongoRepository => {
     return new AccountMongoRepository()
   }
