@@ -17,13 +17,6 @@ export class AccountMongoRepository implements AddAccountRepository {
       throw new Error()
     }
 
-    const accountModel: AccountModel = {
-      id: account._id.toString(),
-      name: account.name,
-      email: account.email,
-      password: account.password
-    }
-
-    return accountModel
+    return MongoHelper.map(account)
   }
 }
