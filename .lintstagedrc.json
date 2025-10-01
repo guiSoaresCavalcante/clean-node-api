@@ -1,6 +1,7 @@
 {
-    "*.ts": [
-        "npx eslint 'scr/**' --fix",
-        "git add"
-    ] 
+  "*.ts": [
+    "npx eslint 'scr/**' --fix",
+    "npm run test:staged",
+    "git add"
+  ] 
 }
