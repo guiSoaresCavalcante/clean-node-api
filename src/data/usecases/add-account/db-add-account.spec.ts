@@ -9,6 +9,8 @@ interface SutTypes {
 
 const makeAddAccountRepository = (): AddAccountRepository => {
   class AddAccountRepositoryStub implements AddAccountRepository {
+    // nosso data layer esta enxergando um protocolo de domain, o que nao e correto em clean arc
+    // como opcao, vamos manter dessa forma para nao replicarmos models
     async add (accountData: AddAccountModel): Promise<AccountModel> {
       const fakeAccount = {
         id: 'valid_id',
@@ -98,6 +100,7 @@ describe('DbAddAccount UseCase', () => {
   })
 
   test('Should return an account on success', async () => {
+    // nao mockamos caso de sucessos, apenas erros
     const { sut } = makeSut()
     const accountData = {
       name: 'valid_name',
