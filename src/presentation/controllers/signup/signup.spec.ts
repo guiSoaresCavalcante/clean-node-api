@@ -12,6 +12,7 @@ const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     isValid (email: string): boolean {
       return true // é boa pratica mockar o stub com um valor que não da erro
+      // quando queremos testar se a validacao der errado, alteramos o retorno direto no teste
     }
   }
   return new EmailValidatorStub()
@@ -28,6 +29,7 @@ const makeEmailValidator = (): EmailValidator => {
 
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
+    // e uma boa pratica criar models para cada acao para nao alterarmos o model original da nosa regra de negocio
     async add (account: AddAccountModel): Promise<AccountModel> {
       const fakeAccount = {
         id: 'valid_id',
@@ -69,6 +71,7 @@ describe('SignUp Controller', () => {
     const HttpResponse = await sut.handle(httpRequest)
     expect(HttpResponse.statusCode).toBe(400)
     expect(HttpResponse.body).toEqual(new MissingParamError('name'))
+    // no caso acima usamdos o toEqual para comparar os valores dos objetos
   })
 
   test('Should return 400 if no email is provided', async () => {

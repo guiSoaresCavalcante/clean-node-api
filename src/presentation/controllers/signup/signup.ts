@@ -2,11 +2,13 @@ import { httpRequest, Controller, EmailValidator, AddAccount } from './signup-pr
 import { badRequest, serverError, ok } from '../../helpers/http-helper'
 import { InvalidParamError, MissingParamError } from '../../errors'
 
+// Todos os controllers precisam implementar uma interface
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
   private readonly addAccount: AddAccount
 
   constructor (emailValidator: EmailValidator, addAccount: AddAccount) {
+    // delegamos a resposabilidade de validar emails para outra classe
     this.emailValidator = emailValidator // injetando o emailValidator
     this.addAccount = addAccount
   }
