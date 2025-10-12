@@ -19,6 +19,7 @@ describe('Account Mongo Repository', () => {
     const accountCollection = MongoHelper.getCollection('accounts')
     await accountCollection.deleteMany({})
   })
+
   const makeSut = (): AccountMongoRepository => {
     return new AccountMongoRepository()
   }
