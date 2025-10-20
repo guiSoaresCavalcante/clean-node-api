@@ -126,9 +126,9 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'invalid_password'
       }
     }
-    const HttpResponse = await sut.handle(httpRequest)
-    expect(HttpResponse.statusCode).toBe(400)
-    expect(HttpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
   })
 
   test('Should return 400 if an invalid email is provided', async () => {
