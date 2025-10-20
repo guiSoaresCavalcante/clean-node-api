@@ -16,7 +16,7 @@ describe('Account Mongo Repository', () => {
 
   // em um teste de integracao com o db, e boa pratica limparmos o banco apos cada teste
   beforeEach(async () => {
-    const accountCollection = MongoHelper.getCollection('accounts')
+    const accountCollection = await MongoHelper.getCollection('accounts')
     await accountCollection.deleteMany({})
   })
 
