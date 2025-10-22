@@ -46,6 +46,8 @@ describe('Log Controller Decorator', () => {
     expect(hadnleSpy).toHaveBeenCalledWith(httpRequest)
   })
 
+  // Garantindo que nosso decorator mantenha o mesmo comportamento que o objeto que
+  // esta decorando
   test('Should return the same result of the controller', async () => {
     const { sut } = makeSut()
     const httpRequest = {

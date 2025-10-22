@@ -9,6 +9,7 @@ export class LogControllerDecorator implements Controller {
 
   // Agora conseguimos adicionar um comportamento sem modificar o nosso controlador
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
-    return await this.controller.handle(httpRequest)
+    const httpResponse = await this.controller.handle(httpRequest)
+    return httpResponse
   }
 }
