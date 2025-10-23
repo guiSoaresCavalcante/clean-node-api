@@ -16,7 +16,7 @@ export class LogControllerDecorator implements Controller {
 
     // Adicionando o novo comportamento
     if (httpResponse.statusCode === 500) {
-      await this.logErrorRepository.log(httpResponse.body.stack)
+      await this.logErrorRepository.logError(httpResponse.body.stack)
     }
     return httpResponse
   }
