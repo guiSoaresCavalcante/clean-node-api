@@ -5,15 +5,16 @@ export class CompareFieldsValidation implements Validation {
   private readonly fieldName: string
   private readonly fieldToCompareName: string
 
-  constructor (fieldName: string, fieldToCompareName) {
+  constructor (fieldName: string, fieldToCompareName: string) {
     this.fieldName = fieldName
     this.fieldToCompareName = fieldToCompareName
   }
 
-  validate (input: any): void {
-    const isEqual = input[this.fieldName] !== input[this.fieldToCompareName]
+  validate (input: any): Error | null {
+    const isEqual = input[this.fieldName] === input[this.fieldToCompareName]
     if (!isEqual) {
-      throw new InvalidParamError(this.fieldToCompareName)
+      return new InvalidParamError(this.fieldToCompareName)
     }
+    return null
   }
 }

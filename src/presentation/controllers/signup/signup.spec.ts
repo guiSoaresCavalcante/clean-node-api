@@ -1,11 +1,10 @@
 import { SignUpController } from './signup'
-import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
-import { EmailValidator, AccountModel, AddAccountModel, AddAccount, HttpRequest, Validation } from './signup-protocols'
+import { MissingParamError, ServerError } from '../../errors'
+import { AccountModel, AddAccountModel, AddAccount, HttpRequest, Validation } from './signup-protocols'
 import { ok, serverError, badRequest } from '../../helpers/http-helper'
 
 interface SutTypes {
   sut: SignUpController
-  emailValidatorStub: EmailValidator
   addAccountStub: AddAccount
   validationStub: Validation
 }
@@ -13,28 +12,16 @@ interface SutTypes {
 // usamos um factory method para facilitar a criação do sut
 const makeSut = (): SutTypes => {
   // injentando uma versão mockada de um validator no nosso controller
-  const emailValidatorStub = makeEmailValidator()
   const addAccountStub = makeAddAccount()
   const validationStub = makeValidation()
-  const sut = new SignUpController(emailValidatorStub, addAccountStub, validationStub)
+  const sut = new SignUpController(addAccountStub, validationStub)
   return {
     sut,
-    emailValidatorStub, // retornando o stub para poder mockar os dados
     addAccountStub,
     validationStub
   }
   // nossa classe não é responsável pela validação do email, por isso estamos marretando o retorno
   // estamos testando como ela lida com os retornos da função
-}
-
-const makeEmailValidator = (): EmailValidator => {
-  class EmailValidatorStub implements EmailValidator {
-    isValid (email: string): boolean {
-      return true // é boa pratica mockar o stub com um valor que não da erro
-      // quando queremos testar se a validacao der errado, alteramos o retorno direto no teste
-    }
-  }
-  return new EmailValidatorStub()
 }
 
 const makeAddAccount = (): AddAccount => {
@@ -49,8 +36,8 @@ const makeAddAccount = (): AddAccount => {
 
 const makeValidation = (): Validation => {
   class ValidationStub implements Validation {
-    validate (input: any): void {
-
+    validate (input: any): Error | null {
+      return null
     }
   }
   return new ValidationStub()
@@ -72,39 +59,7 @@ const makeFakeRequest = (): HttpRequest => ({
   }
 })
 
-// const makeEmailValidatorWithError = (): EmailValidator => {
-//   class EmailValidatorStub implements EmailValidator {
-//     isValid (email: string): boolean {
-//       throw new Error()
-//     }
-//   }
-//   return new EmailValidatorStub()
-// }
-
 describe('SignUp Controller', () => {
-  test('Should return 400 if an invalid email is provided', async () => {
-    const { sut, emailValidatorStub } = makeSut() // o SignUpController não ira validar email, iremos injetar uma dependência
-    jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false) // usando o jest para alterar o valor default do retorno
-    const httpResponse = await sut.handle(makeFakeRequest())
-    expect(httpResponse).toEqual(badRequest(new InvalidParamError('email')))
-  })
-
-  test('Should call emailValidator with correct email', async () => {
-    const { sut, emailValidatorStub } = makeSut()
-    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
-    await sut.handle(makeFakeRequest())
-    expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
-  })
-
-  test('Should return 500 if EmailValidator throws', async () => {
-    const { sut, emailValidatorStub } = makeSut()
-    jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
-      throw new Error()
-    })
-    const httpResponse = await sut.handle(makeFakeRequest())
-    expect(httpResponse).toEqual(serverError(new ServerError()))
-  })
-
   test('Should return 500 if AddAccount throws', async () => {
     const { sut, addAccountStub } = makeSut()
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
@@ -145,7 +100,7 @@ describe('SignUp Controller', () => {
   test('Should return 400 if validation returns an error', async () => {
     const { sut, validationStub } = makeSut()
     jest.spyOn(validationStub, 'validate').mockImplementationOnce(() => {
-      throw new MissingParamError('any_field')
+      return new MissingParamError('any_field')
     })
 
     const httpResponse = await sut.handle(makeFakeRequest())
