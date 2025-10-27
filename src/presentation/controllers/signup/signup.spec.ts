@@ -1,12 +1,30 @@
 import { SignUpController } from './signup'
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
-import { EmailValidator, AccountModel, AddAccountModel, AddAccount, HttpRequest } from './signup-protocols'
+import { EmailValidator, AccountModel, AddAccountModel, AddAccount, HttpRequest, Validation } from './signup-protocols'
 import { ok, serverError, badRequest } from '../../helpers/http-helper'
 
 interface SutTypes {
   sut: SignUpController
   emailValidatorStub: EmailValidator
   addAccountStub: AddAccount
+  validationStub: Validation
+}
+
+// usamos um factory method para facilitar a criação do sut
+const makeSut = (): SutTypes => {
+  // injentando uma versão mockada de um validator no nosso controller
+  const emailValidatorStub = makeEmailValidator()
+  const addAccountStub = makeAddAccount()
+  const validationStub = makeValidation()
+  const sut = new SignUpController(emailValidatorStub, addAccountStub, validationStub)
+  return {
+    sut,
+    emailValidatorStub, // retornando o stub para poder mockar os dados
+    addAccountStub,
+    validationStub
+  }
+  // nossa classe não é responsável pela validação do email, por isso estamos marretando o retorno
+  // estamos testando como ela lida com os retornos da função
 }
 
 const makeEmailValidator = (): EmailValidator => {
@@ -17,6 +35,25 @@ const makeEmailValidator = (): EmailValidator => {
     }
   }
   return new EmailValidatorStub()
+}
+
+const makeAddAccount = (): AddAccount => {
+  class AddAccountStub implements AddAccount {
+    // e uma boa pratica criar models para cada acao para nao alterarmos o model original da nosa regra de negocio
+    async add (account: AddAccountModel): Promise<AccountModel> {
+      return await new Promise(resolve => { resolve(makeFakeAccount()) })
+    }
+  }
+  return new AddAccountStub()
+}
+
+const makeValidation = (): Validation => {
+  class ValidationStub implements Validation {
+    validate (input: any): void {
+
+    }
+  }
+  return new ValidationStub()
 }
 
 const makeFakeAccount = (): AccountModel => ({
@@ -43,31 +80,6 @@ const makeFakeRequest = (): HttpRequest => ({
 //   }
 //   return new EmailValidatorStub()
 // }
-
-const makeAddAccount = (): AddAccount => {
-  class AddAccountStub implements AddAccount {
-    // e uma boa pratica criar models para cada acao para nao alterarmos o model original da nosa regra de negocio
-    async add (account: AddAccountModel): Promise<AccountModel> {
-      return await new Promise(resolve => { resolve(makeFakeAccount()) })
-    }
-  }
-  return new AddAccountStub()
-}
-
-// usamos um factory method para facilitar a criação do sut
-const makeSut = (): SutTypes => {
-  // injentando uma versão mockada de um validator no nosso controller
-  const emailValidatorStub = makeEmailValidator()
-  const addAccountStub = makeAddAccount()
-  const sut = new SignUpController(emailValidatorStub, addAccountStub)
-  return {
-    sut,
-    emailValidatorStub, // retornando o stub para poder mockar os dados
-    addAccountStub
-  }
-  // nossa classe não é responsável pela validação do email, por isso estamos marretando o retorno
-  // estamos testando como ela lida com os retornos da função
-}
 
 describe('SignUp Controller', () => {
   test('Should return 400 if no name is provided', async () => {
@@ -186,5 +198,14 @@ describe('SignUp Controller', () => {
 
     const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse).toEqual(ok(makeFakeAccount()))
+  })
+
+  test('Should call Validation with correct value', async () => {
+    const { sut, validationStub } = makeSut()
+    const validateSpy = jest.spyOn(validationStub, 'validate')
+    const httpRequest = makeFakeRequest()
+
+    await sut.handle(httpRequest)
+    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 })
