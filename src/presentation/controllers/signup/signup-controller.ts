@@ -3,14 +3,10 @@ import { badRequest, serverError, ok } from '../../helpers/http/http-helper'
 
 // Todos os controllers precisam implementar uma interface
 export class SignUpController implements Controller {
-  private readonly addAccount: AddAccount
-  private readonly validation: Validation
-
-  constructor (addAccount: AddAccount, validation: Validation) {
-    // delegamos a resposabilidade de validar emails para outra classe
-    this.addAccount = addAccount
-    this.validation = validation
-  }
+  constructor (
+    private readonly addAccount: AddAccount,
+    private readonly validation: Validation
+  ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
