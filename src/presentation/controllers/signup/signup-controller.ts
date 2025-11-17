@@ -1,4 +1,4 @@
-import { HttpRequest, Controller, AddAccount, HttpResponse, Validation } from './signup-protocols'
+import { HttpRequest, Controller, AddAccount, HttpResponse, Validation } from './signup-controller-protocols'
 import { badRequest, serverError, ok } from '../../helpers/http/http-helper'
 
 // Todos os controllers precisam implementar uma interface
