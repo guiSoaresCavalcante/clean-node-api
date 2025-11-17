@@ -1,4 +1,4 @@
-import { Controller, HttpRequest } from '../../presentation/protocols'
+import { Controller, HttpRequest } from '../../../presentation/protocols'
 import { Request, Response } from 'express'
 
 // Criando um adapter para o nosso controlador. Ele espera um httpRequest como parametro,
