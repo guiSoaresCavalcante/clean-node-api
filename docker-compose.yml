@@ -20,5 +20,6 @@ services:
       MONGO_URL: mongodb://mongo:27017/clean-node-api
     ports:
       - "5050:5050"
+      - "9222:9222"
     links:
       - mongo
