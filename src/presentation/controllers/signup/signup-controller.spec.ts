@@ -1,12 +1,13 @@
 import { SignUpController } from './signup-controller'
 import { MissingParamError, ServerError } from '../../errors'
-import { AccountModel, AddAccountModel, AddAccount, HttpRequest, Validation } from './signup-controller-protocols'
+import { AccountModel, AddAccountModel, AddAccount, HttpRequest, Validation, Authentication, AuthenticationModel } from './signup-controller-protocols'
 import { ok, serverError, badRequest } from '../../helpers/http/http-helper'
 
 interface SutTypes {
   sut: SignUpController
   addAccountStub: AddAccount
   validationStub: Validation
+  authenticationStub: Authentication
 }
 
 // usamos um factory method para facilitar a criação do sut
@@ -14,14 +15,25 @@ const makeSut = (): SutTypes => {
   // injentando uma versão mockada de um validator no nosso controller
   const addAccountStub = makeAddAccount()
   const validationStub = makeValidation()
-  const sut = new SignUpController(addAccountStub, validationStub)
+  const authenticationStub = makeAuthentication()
+  const sut = new SignUpController(addAccountStub, validationStub, authenticationStub)
   return {
     sut,
     addAccountStub,
-    validationStub
+    validationStub,
+    authenticationStub
   }
   // nossa classe não é responsável pela validação do email, por isso estamos marretando o retorno
   // estamos testando como ela lida com os retornos da função
+}
+
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (authentication: AuthenticationModel): Promise<string> {
+      return await new Promise(resolve => { resolve('any_token') })
+    }
+  }
+  return new AuthenticationStub()
 }
 
 const makeAddAccount = (): AddAccount => {
@@ -105,5 +117,12 @@ describe('SignUp Controller', () => {
 
     const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse).toEqual(badRequest(new MissingParamError('any_field')))
+  })
+
+  test('Sould call authentication with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+    await sut.handle(makeFakeRequest())
+    expect(authSpy).toHaveBeenCalledWith({ email: 'any_email@email.com', password: 'any_password' })
   })
 })
