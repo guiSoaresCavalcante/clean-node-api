@@ -1,19 +1,12 @@
-import { DbAddAccount } from '../../../../data/usecases/add-account/db-add-account'
-import { BcryptAdapter } from '../../../../infra/criptography/bcrypt-adapter/bcrypt-adapter'
-import { AccountMongoRepository } from '../../../../infra/db/mongodb/account/account-mongo-repository'
-import { LogMongoRepository } from '../../../../infra/db/mongodb/log/log-mongo-repository'
 import { SignUpController } from '../../../../presentation/controllers/signup/signup-controller'
 import { Controller } from '../../../../presentation/protocols'
-import { LogControllerDecorator } from '../../../decorators/log-controller-decorator'
+import { makeLogControllerDecorator } from '../../decorators/log-controller-decorator-factory'
+import { makeDbAddAccount } from '../../usecases/add-account/db-add-account-factory'
+import { makeDbAuthentication } from '../../usecases/authentication/db-authentication-factory'
 import { makeSignUpValidation } from './signup-validation-factory'
 
 // instanciando os objetos necessarios e fazendo a composicao do controller
 export const makeSignupController = (): Controller => {
-  const SALT = 12
-  const bcryptAdapter = new BcryptAdapter(SALT)
-  const accountMongoRepository = new AccountMongoRepository()
-  const dbAddAccount = new DbAddAccount(bcryptAdapter, accountMongoRepository)
-  const signUpController = new SignUpController(dbAddAccount, makeSignUpValidation())
-  const logMongoRepository = new LogMongoRepository()
-  return new LogControllerDecorator(signUpController, logMongoRepository)
+  const controller = new SignUpController(makeDbAddAccount(), makeSignUpValidation(), makeDbAuthentication())
+  return makeLogControllerDecorator(controller)
 }
