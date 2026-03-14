@@ -1,6 +1,6 @@
 import { HttpRequest, Controller, AddAccount, HttpResponse, Validation, Authentication } from './signup-controller-protocols'
-import { badRequest, serverError, ok, forbidden } from '../../helpers/http/http-helper'
-import { EmailInUseError } from '../../errors'
+import { badRequest, serverError, ok, forbidden } from '../../../helpers/http/http-helper'
+import { EmailInUseError } from '../../../errors'
 
 // Todos os controllers precisam implementar uma interface
 export class SignUpController implements Controller {
